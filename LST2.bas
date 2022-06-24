@@ -248,24 +248,8 @@
 5220SBC curr_lineno+1
 5230BMI done
 5240 
-5250\ figure out how many digits the current line# has (by subtracting
-5251\ each power of 10), then print enough spaces so that the line#
-5252\ will be right-adjusted when we print it out
-5260LDX #3
-5270.checkPow10
-5280LDA curr_lineno
-5290SEC
-5300SBC tensLSB,X
-5310LDA curr_lineno+1
-5320SBC tensMSB,X
-5330BMI P%+5
-5340DEX
-5350BPL checkPow10
-5360INX
-5370JSR indent
-5380 
-5390\ print the current line#
-5400JSR &991F   \ this prints the IAC (&2A/2B) as a 16-bit number
+5390\ print the current line# (with a field width of 5)
+5400JSR &9923
 5410 
 5420\ print a space
 5430LDA #&20
@@ -290,12 +274,6 @@
 5580JSR osnewl
 5590JMP &8AF3
 5600 
-5610\ LSB/MSB's for 10000, 1000, 100, 10
-5620.tensLSB
-5630EQUB &10 : EQUB &E8 : EQUB &64 : EQUB &0A
-5640.tensMSB
-5650EQUB &27 : EQUB &03 : EQUB &00 : EQUB &00
-5660 
 5670\ we now print out the next byte of program code (in A)
 5671 
 5680.printCode
