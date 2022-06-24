@@ -3,7 +3,7 @@
 12REM out onto separate lines.
 13REM Since it calls into the BASIC ROM, it requires BASIC 2.
 14 
-20REM It lives at &08C0-0AFF, which is normally used for the following:
+20REM It lives at &08D0-0AFF, which is normally used for the following:
 21REM   800-8FF: sound workspace & buffers, printer buffer, envelope storage
 22REM   900-9FF: envelope storage, RS423/speech/cassette output buffers
 23REM   A00-AFF: cassette/RS423 input buffers
@@ -31,7 +31,9 @@
 120REM This points into the program code being listed (only while
 121REM we're parsing the input command).
 122pcode = &3B : REM and &3C
-123 
+123REM After parsing the input command, we use these bytes as temp storage.
+124temp1 = &3B : temp2 = &3C
+125 
 130REM This holds the current line# being listed.
 131curr_lineno = &2A : REM and &2B
 132 
@@ -61,7 +63,7 @@
 900osbyte = &FFF4 : oswrch = &FFEE : osnewl = &FFE7
 910 
 1000FOR opt = 0 TO 3 STEP 3
-1010BASE = &08C0 : P% = BASE
+1010BASE = &08D0 : P% = BASE
 1020[ OPT opt
 1030 
 1100\ === MAIN ENTRY POINT ====================================================
@@ -376,7 +378,8 @@
 6610 
 6620\ if we haven't indented yet, and we have a ".", then flag that we are
 6621\ in an assembly label
-6630BIT indent_pending
+6630LDY indent_pending   \ remember this flag
+6631STY temp2
 6640BPL P%+10
 6650CMP #&2E
 6660BNE P%+6
@@ -401,11 +404,14 @@
 6840JSR indent
 6850 
 6860.postAsmPrefix
-6870\ if we have a "\" (start of comment), then indent to col.50
+6870\ if we have a "\" (start of comment), and it's not stand-alone,
+6871\ then show it at col.50
 6880CMP #&5C
-6890BNE P%+7
-6900LDX #50
-6910JSR indent
+6890BNE P%+11
+6891BIT temp2
+6892BMI P%+7
+6894LDX #50
+6895JSR indent
 6920 
 6930\ if we have a "]" (end of assembly code), then flag that we are in BASIC code
 6940CMP #&5D
