@@ -423,10 +423,10 @@
 6840JSR indent
 6850 
 6860.postAsmPrefix
-6870\ if we have a "\" (start of comment), then indent to col.41
+6870\ if we have a "\" (start of comment), then indent to col.50
 6880CMP #&5C
 6890BNE P%+7
-6900LDX #41
+6900LDX #50
 6910JSR indent
 6920 
 6930\ if we have a "]" (end of assembly code), then flag that we are in BASIC code
